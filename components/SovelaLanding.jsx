@@ -2351,12 +2351,12 @@ export default function SovelaApp() {
         .exec-summary-content { order: 1; }
         @media (min-width: 960px) {
           .exec-summary-layout {
-            grid-template-columns: auto 1fr;
+            grid-template-columns: 1fr auto;
             gap: 64px;
             align-items: start;
           }
-          .exec-summary-mockup { order: 1; position: sticky; top: 120px; animation: softFloat 6s ease-in-out infinite; }
-          .exec-summary-content { order: 2; }
+          .exec-summary-mockup { order: 2; position: sticky; top: 120px; animation: softFloat 6s ease-in-out infinite; }
+          .exec-summary-content { order: 1; }
         }
         @media (max-width: 959px) {
           .exec-summary-mockup { order: 2; }
