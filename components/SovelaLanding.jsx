@@ -437,9 +437,9 @@ function FeatureGrid() {
   return (
     <Section bg="surface" id="features">
       <SectionHeading
-        eyebrow="Why sovela"
+        eyebrow="Why Sovela"
         title="Your salon's numbers, finally making sense."
-        subtitle="sovela tracks your commissions, analyses your margins and shows you where every dollar goes. Run your salon on clarity, not guesswork."
+        subtitle="Sovela tracks your commissions, analyses your margins and shows you where every dollar goes. Run your salon on clarity, not guesswork."
       />
       <div style={{ position: "relative" }}>
         <div className="feature-grid">
@@ -544,21 +544,35 @@ function IntelligenceReport({ activeCard }) {
   const isVisible = activeCard !== null;
   const sage = "#8BAF8B";
   const paleRed = "#C4946A";
+  const amber = "#C9A84C";
 
   /* ── Commission State: Commission Paid Tracker ── */
   const CommissionContent = () => {
     const minTargetPct = 80;
     const staff = [
-      { name: "Aria K.", gp: "$4,820", commission: "$1,205", progress: 96, hitTarget: true },
-      { name: "Sienna M.", gp: "$3,640", commission: "$910", progress: 91, hitTarget: true },
-      { name: "Luca H.", gp: "$2,910", commission: "$0", progress: 73, hitTarget: false },
+      { name: "Aria K.", gp: "$4,820", commission: "$1,205", rate: "25%", progress: 96, hitTarget: true },
+      { name: "Sienna M.", gp: "$3,640", commission: "$910", rate: "25%", progress: 91, hitTarget: true },
+      { name: "Ruby W.", gp: "$3,180", commission: "$795", rate: "25%", progress: 84, hitTarget: true },
+      { name: "Luca H.", gp: "$2,910", commission: "$0", rate: "25%", progress: 73, hitTarget: false },
     ];
     return (
       <div>
         <ReportHeader label="Commission Paid" period="January 2025" />
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginBottom: 4 }}>Total Paid</div>
-          <div style={{ fontSize: 28, fontWeight: 300, color: T.colors.textPrimary, letterSpacing: "-0.02em" }}>$2,115</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginBottom: 4 }}>Total Paid</div>
+            <div style={{ fontSize: 28, fontWeight: 300, color: T.colors.textPrimary, letterSpacing: "-0.02em" }}>$2,910</div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+            <div style={{ padding: "6px 10px", background: "rgba(34,34,34,0.02)", borderRadius: 8, textAlign: "center" }}>
+              <div style={{ fontSize: 13, fontWeight: 300, color: T.colors.textPrimary }}>$14,550</div>
+              <div style={{ fontSize: 7, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginTop: 1 }}>Total GP</div>
+            </div>
+            <div style={{ padding: "6px 10px", background: "rgba(34,34,34,0.02)", borderRadius: 8, textAlign: "center" }}>
+              <div style={{ fontSize: 13, fontWeight: 300, color: T.colors.textPrimary }}>25%</div>
+              <div style={{ fontSize: 7, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginTop: 1 }}>Rate</div>
+            </div>
+          </div>
         </div>
         <div style={{ height: 1, background: "rgba(34,34,34,0.06)", marginBottom: 14 }} />
 
@@ -625,6 +639,12 @@ function IntelligenceReport({ activeCard }) {
             </div>
           </div>
         ))}
+
+        <div style={{ height: 1, background: "rgba(34,34,34,0.06)", margin: "16px 0" }} />
+        <div style={{ padding: "10px 12px", borderRadius: 10, borderLeft: `3px solid ${sage}`, background: "rgba(139,175,139,0.04)" }}>
+          <div style={{ fontSize: 8, fontWeight: 600, color: sage, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 3 }}>Insight</div>
+          <div style={{ fontSize: 10, fontWeight: 300, color: T.colors.textPrimary, lineHeight: 1.5 }}>3 of 4 stylists above minimum target. Team commission efficiency trending upward month-on-month.</div>
+        </div>
       </div>
     );
   };
@@ -677,9 +697,13 @@ function IntelligenceReport({ activeCard }) {
           ))}
         </div>
         <div style={{ height: 1, background: "rgba(34,34,34,0.06)", margin: "16px 0" }} />
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary }}>Estimated Total GP</span>
           <span style={{ fontSize: 18, fontWeight: 300, color: T.colors.textPrimary, letterSpacing: "-0.02em" }}>{fmtK(totalGP)}</span>
+        </div>
+        <div style={{ padding: "10px 12px", borderRadius: 10, borderLeft: `3px solid ${amber}`, background: "rgba(201,168,76,0.04)" }}>
+          <div style={{ fontSize: 8, fontWeight: 600, color: amber, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 3 }}>Insight</div>
+          <div style={{ fontSize: 10, fontWeight: 300, color: T.colors.textPrimary, lineHeight: 1.5 }}>Extensions generate 10% of GP but occupy 22% of floor time. Consider pricing review or shifting bookings to higher-margin services.</div>
         </div>
       </div>
     );
@@ -689,14 +713,21 @@ function IntelligenceReport({ activeCard }) {
   const ServiceContent = () => {
     const services = [
       { name: "Full Balayage", revenue: "$285", gp: "$199", margin: "70%", marginVal: 70, tag: "Healthy", tagColor: sage, barColor: sage },
+      { name: "Colour & Highlights", revenue: "$195", gp: "$132", margin: "68%", marginVal: 68, tag: "Healthy", tagColor: sage, barColor: sage },
       { name: "Blow-dry & Style", revenue: "$65", gp: "$37", margin: "57%", marginVal: 57, tag: "Review", tagColor: paleRed, barColor: paleRed },
-      { name: "Retail Product", revenue: "$28", gp: "$14", margin: "50%", marginVal: 50, tag: "Healthy", tagColor: sage, barColor: sage },
+      { name: "Retail Product", revenue: "$40", gp: "$26", margin: "65%", marginVal: 65, tag: "Healthy", tagColor: sage, barColor: sage },
     ];
     return (
       <div>
         <ReportHeader label="Service Profitability" period="January 2025" />
-        <div style={{ fontSize: 11, fontWeight: 300, color: T.colors.textSecondary, marginBottom: 20, lineHeight: 1.6 }}>
-          Margin comparison across your top and lowest-performing services.
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 300, color: T.colors.textSecondary, lineHeight: 1.6, maxWidth: "60%" }}>
+            Margin comparison across your top and lowest-performing services.
+          </div>
+          <div style={{ padding: "6px 10px", background: "rgba(139,175,139,0.06)", border: `1px solid rgba(139,175,139,0.15)`, borderRadius: 8, textAlign: "center" }}>
+            <div style={{ fontSize: 14, fontWeight: 300, color: T.colors.textPrimary }}>66%</div>
+            <div style={{ fontSize: 7, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginTop: 1 }}>Avg Margin</div>
+          </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {services.map((s) => (
@@ -740,6 +771,11 @@ function IntelligenceReport({ activeCard }) {
               </div>
             </div>
           ))}
+        </div>
+        <div style={{ height: 1, background: "rgba(34,34,34,0.06)", margin: "16px 0" }} />
+        <div style={{ padding: "10px 12px", borderRadius: 10, borderLeft: `3px solid ${paleRed}`, background: "rgba(196,148,106,0.04)" }}>
+          <div style={{ fontSize: 8, fontWeight: 600, color: paleRed, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 3 }}>Review</div>
+          <div style={{ fontSize: 10, fontWeight: 300, color: T.colors.textPrimary, lineHeight: 1.5 }}>Blow-dry margin at 57% — consider material cost audit or $5 price adjustment to bring above 60% threshold.</div>
         </div>
       </div>
     );
@@ -849,10 +885,11 @@ function MobileIntelligenceReport({ activeCard }) {
   const titles = ["Commission Paid", "Gross Profit by Category", "Service Profitability"];
   const summaries = [
     { items: [
-      { label: "Total Paid", value: "$2,115" },
+      { label: "Total Paid", value: "$2,910" },
       { label: "Aria K.", sub: "GP $4,820 → $1,205 commission", color: sage },
       { label: "Sienna M.", sub: "GP $3,640 → $910 commission", color: sage },
-      { label: "Luca H.", sub: "Below minimum target", color: paleRed },
+      { label: "Ruby W.", sub: "GP $3,180 → $795 commission", color: sage },
+      { label: "Luca H.", sub: "Below minimum target · 2 months", color: paleRed },
     ]},
     { items: [
       { label: "Services", sub: "$40,200 GP · 85% margin", color: sage },
@@ -862,15 +899,16 @@ function MobileIntelligenceReport({ activeCard }) {
     ]},
     { items: [
       { label: "Full Balayage", sub: "$199 GP · 70% margin · Healthy", color: sage },
+      { label: "Colour & Highlights", sub: "$132 GP · 68% margin · Healthy", color: sage },
       { label: "Blow-dry & Style", sub: "$37 GP · 57% margin · Review", color: paleRed },
-      { label: "Retail Product", sub: "$14 GP · 50% margin · Healthy", color: sage },
+      { label: "Retail Product", sub: "$26 GP · 65% margin · Healthy", color: sage },
     ]},
   ];
 
   return (
     <div className="intelligence-report-mobile" style={{
       overflow: "hidden",
-      maxHeight: isVisible ? 400 : 0,
+      maxHeight: isVisible ? 520 : 0,
       opacity: isVisible ? 1 : 0,
       transition: "max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease",
       marginTop: isVisible ? 20 : 0,
@@ -978,10 +1016,10 @@ function DashboardMockup({ animate = false }) {
 
   const barData = [
     { label: "Colour",     h: 52, gp: 36, color: "#C4B49E", gpColor: sage },
-    { label: "Cuts",       h: 36, gp: 20, color: "#C4B49E", gpColor: "#C4946A" },
+    { label: "Cuts",       h: 36, gp: 20, color: "#C4B49E", gpColor: sage },
     { label: "Treatments", h: 42, gp: 30, color: "#C4B49E", gpColor: sage },
-    { label: "Extensions", h: 24, gp: 10, color: "#C4B49E", gpColor: "#C4946A" },
-    { label: "Retail",     h: 18, gp: 9,  color: "#C4B49E", gpColor: "#C9A84C" },
+    { label: "Extensions", h: 24, gp: 10, color: "#C4B49E", gpColor: sage },
+    { label: "Retail",     h: 18, gp: 9,  color: "#C4B49E", gpColor: sage },
   ];
 
   const stylists = [
@@ -1012,7 +1050,7 @@ function DashboardMockup({ animate = false }) {
           <div style={{ width: 7, height: 7, borderRadius: "50%", background: "rgba(191,168,158,0.09)" }} />
         </div>
         <span style={{ fontFamily: T.fonts.body, fontWeight: 400, fontSize: 8.5, letterSpacing: "0.14em", textTransform: "uppercase", color: T.colors.textTertiary }}>
-          sovela &middot; Monthly Overview
+          Sovela &middot; Monthly Overview
         </span>
         <div style={{ width: 44 }} />
       </div>
@@ -1207,10 +1245,38 @@ function DashboardMockup({ animate = false }) {
 
 function DashboardReveal({ onOpenWaitlist }) {
   const [btnHovered, setBtnHovered] = useState(false);
+  const [scrollTriggered, setScrollTriggered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 960);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // On mobile: trigger animation when section scrolls into view
+  useEffect(() => {
+    if (!isMobile || !sectionRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setScrollTriggered(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.35 }
+    );
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, [isMobile]);
+
+  const isActive = isMobile ? scrollTriggered : btnHovered;
 
   return (
     <Section bg="primary" id="dashboard">
-      <div className="dashboard-split">
+      <div className="dashboard-split" ref={sectionRef}>
         <div className="dashboard-text">
           <FadeInUp>
             <div style={{
@@ -1245,7 +1311,7 @@ function DashboardReveal({ onOpenWaitlist }) {
               marginBottom: 36, maxWidth: 480,
             }}>
               A full column doesn't mean a full bank account.
-              sovela reveals exactly what your salon keeps, where it leaks, and where to grow next.
+              Sovela reveals exactly what your salon keeps, where it leaks, and where to grow next.
             </p>
           </FadeInUp>
 
@@ -1253,8 +1319,6 @@ function DashboardReveal({ onOpenWaitlist }) {
             <div
               onMouseEnter={() => setBtnHovered(true)}
               onMouseLeave={() => setBtnHovered(false)}
-              onTouchStart={() => setBtnHovered(true)}
-              onTouchEnd={() => { setTimeout(() => setBtnHovered(false), 1800); }}
               style={{ display: "inline-block" }}
             >
               <PillButton variant="outline" size="md" onClick={onOpenWaitlist}>
@@ -1267,7 +1331,7 @@ function DashboardReveal({ onOpenWaitlist }) {
         <div className="dashboard-image-wrap" style={{ position: "relative" }}>
           <FadeInUp delay={0.25}>
             <div style={{
-              transform: btnHovered ? "scale(1.03)" : "scale(1)",
+              transform: isActive ? "scale(1.03)" : "scale(1)",
               transformOrigin: "center center",
               transition: "transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
               WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 88%, transparent 100%), linear-gradient(to bottom, black 0%, black 82%, transparent 100%)",
@@ -1275,7 +1339,7 @@ function DashboardReveal({ onOpenWaitlist }) {
               maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 88%, transparent 100%), linear-gradient(to bottom, black 0%, black 82%, transparent 100%)",
               maskComposite: "intersect",
             }}>
-              <DashboardMockup animate={btnHovered} />
+              <DashboardMockup animate={isActive} />
             </div>
           </FadeInUp>
         </div>
@@ -1599,6 +1663,23 @@ function ExecutiveReportMockup({ activeReport = null, isMobileCarousel = false }
           <div style={{ fontSize: 9, fontWeight: 300, color: T.colors.textTertiary, marginTop: 3 }}>targets met</div>
         </div>
       </div>
+
+      {/* Revenue by category */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 1, background: "rgba(34,34,34,0.06)", borderRadius: 10, overflow: "hidden", marginBottom: 14 }}>
+        {[
+          { label: "Services", value: "$47,171", pct: "73%" },
+          { label: "Extensions", value: "$10,458", pct: "16%" },
+          { label: "Retail", value: "$4,092", pct: "6%" },
+          { label: "Treatments", value: "$2,610", pct: "4%" },
+        ].map(c => (
+          <div key={c.label} style={{ background: "rgba(255,255,255,0.5)", padding: "8px 6px" }}>
+            <div style={{ fontSize: 11, fontWeight: 300, color: T.colors.textPrimary, marginBottom: 2 }}>{c.value}</div>
+            <div style={{ fontSize: 7, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginBottom: 1 }}>{c.label}</div>
+            <div style={{ fontSize: 9, fontWeight: 400, color: T.colors.textTertiary }}>{c.pct}</div>
+          </div>
+        ))}
+      </div>
+
       <div style={{ height: 1, background: "rgba(34,34,34,0.06)", marginBottom: 14 }} />
       <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginBottom: 10 }}>Performance Gaps</div>
       {[
@@ -1618,10 +1699,14 @@ function ExecutiveReportMockup({ activeReport = null, isMobileCarousel = false }
         </div>
       ))}
       <div style={{ height: 1, background: "rgba(34,34,34,0.06)", margin: "14px 0" }} />
-      <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginBottom: 8 }}>Top Action</div>
-      <div style={{ padding: "10px 12px", borderRadius: 10, borderLeft: `3px solid ${paleRed}`, background: "rgba(196,148,106,0.04)" }}>
+      <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginBottom: 8 }}>Recommended Actions</div>
+      <div style={{ padding: "10px 12px", borderRadius: 10, borderLeft: `3px solid ${paleRed}`, background: "rgba(196,148,106,0.04)", marginBottom: 8 }}>
         <div style={{ fontSize: 8, fontWeight: 600, color: paleRed, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 3 }}>High Priority</div>
-        <div style={{ fontSize: 10, fontWeight: 300, color: T.colors.textPrimary, lineHeight: 1.5 }}>Ava at 35.7% of treatment target — basin conversation</div>
+        <div style={{ fontSize: 10, fontWeight: 300, color: T.colors.textPrimary, lineHeight: 1.5 }}>Ava at 35.7% of treatment target — basin conversation needed to lift attach rate.</div>
+      </div>
+      <div style={{ padding: "10px 12px", borderRadius: 10, borderLeft: `3px solid ${amber}`, background: "rgba(201,168,76,0.04)" }}>
+        <div style={{ fontSize: 8, fontWeight: 600, color: amber, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 3 }}>Medium</div>
+        <div style={{ fontSize: 10, fontWeight: 300, color: T.colors.textPrimary, lineHeight: 1.5 }}>Retail sitting at 76% of target. One recommendation per client closes the gap.</div>
       </div>
       <div style={{ marginTop: 16 }}>{footer("Growth Radar")}</div>
     </div>
@@ -1642,33 +1727,43 @@ function ExecutiveReportMockup({ activeReport = null, isMobileCarousel = false }
             <div style={{ fontSize: 10, fontWeight: 500, color: sage, marginTop: 2 }}>+$1,655 vs target</div>
           </div>
         </div>
-        <div style={{ height: 4, borderRadius: 99, background: "rgba(34,34,34,0.04)", overflow: "hidden", marginBottom: 10 }}>
+        <div style={{ height: 4, borderRadius: 99, background: "rgba(34,34,34,0.04)", overflow: "hidden", marginBottom: 4 }}>
           <div style={{ height: "100%", width: "100%", borderRadius: 99, background: `linear-gradient(90deg, rgba(139,175,139,0.5), ${sage})` }} />
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+          <span style={{ fontSize: 9, fontWeight: 400, color: sage }}>↑ 6.2% vs Dec</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
           {[
             { label: "Retail", value: "$693", note: "115.5%", up: true },
             { label: "Treatments", value: "19", note: "135.7%", up: true },
             { label: "Avg. Spend", value: "$199", note: "76 clients", up: null },
+            { label: "Retail Attach", value: "26.3%", note: "20 of 76", up: null },
           ].map(s => (
             <div key={s.label} style={{ padding: "7px 6px", background: "rgba(34,34,34,0.02)", borderRadius: 6 }}>
               <div style={{ fontSize: 12, fontWeight: 300, color: T.colors.textPrimary, marginBottom: 2 }}>{s.value}</div>
-              <div style={{ fontSize: 8, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginBottom: 2 }}>{s.label}</div>
+              <div style={{ fontSize: 7, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginBottom: 2 }}>{s.label}</div>
               <div style={{ fontSize: 9, fontWeight: 400, color: s.up ? sage : T.colors.textTertiary }}>{s.note}</div>
             </div>
           ))}
         </div>
       </div>
-      <div style={{ padding: "10px 12px", borderRadius: 10, borderLeft: `3px solid ${sage}`, background: "rgba(139,175,139,0.04)", marginBottom: 14 }}>
+      <div style={{ padding: "10px 12px", borderRadius: 10, borderLeft: `3px solid ${sage}`, background: "rgba(139,175,139,0.04)", marginBottom: 8 }}>
         <div style={{ fontSize: 8, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: sage, marginBottom: 3 }}>Focus Area</div>
         <div style={{ fontSize: 10, fontWeight: 300, color: T.colors.textPrimary, lineHeight: 1.6 }}>
           Retail attach rate at 26.3% vs 32.2% salon average. Room to lift without changing client experience.
         </div>
       </div>
-      <div style={{ padding: "10px 12px", borderRadius: 10, borderLeft: `3px solid ${T.colors.accent}`, background: "rgba(191,168,158,0.04)", marginBottom: 14 }}>
+      <div style={{ padding: "10px 12px", borderRadius: 10, borderLeft: `3px solid ${T.colors.accent}`, background: "rgba(191,168,158,0.04)", marginBottom: 8 }}>
         <div style={{ fontSize: 8, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.accent, marginBottom: 3 }}>Summary</div>
         <div style={{ fontSize: 10, fontWeight: 300, color: T.colors.textPrimary, lineHeight: 1.6 }}>
-          Tracking above target and leading on treatments. Focus conversation on sustaining momentum.
+          Tracking above target and leading on treatments. Focus conversation on sustaining momentum and identifying where she can stretch further.
+        </div>
+      </div>
+      <div style={{ padding: "10px 12px", borderRadius: 10, borderLeft: `3px solid ${amber}`, background: "rgba(201,168,76,0.04)", marginBottom: 14 }}>
+        <div style={{ fontSize: 8, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: amber, marginBottom: 3 }}>Coaching Notes</div>
+        <div style={{ fontSize: 10, fontWeight: 300, color: T.colors.textPrimary, lineHeight: 1.6 }}>
+          Strong month. Consider pairing Jade with Ava for treatment mentoring — her conversion approach at the basin could lift the team average.
         </div>
       </div>
       <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 16 }}>
@@ -1716,18 +1811,45 @@ function ExecutiveReportMockup({ activeReport = null, isMobileCarousel = false }
         ))}
       </div>
       <div style={{ height: 1, background: "rgba(34,34,34,0.06)", marginBottom: 14 }} />
-      <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginBottom: 8 }}>Strategic Levers</div>
+      <div style={{ fontSize: 9, fontWeight: 500, letterSpacing: "0.1em", textTransform: "uppercase", color: T.colors.textTertiary, marginBottom: 10 }}>Strategic Levers</div>
       {[
-        { title: "Pricing review due", urgency: "Act now", urgencyColor: paleRed, impact: "+$3,400/mo" },
-        { title: "Treatment promotion", urgency: "This month", urgencyColor: amber, impact: "+$1,800" },
-        { title: "Forward booking push", urgency: "This month", urgencyColor: amber, impact: "Protects $8–12k" },
+        {
+          title: "Pricing review due",
+          urgency: "Act now",
+          urgencyColor: paleRed,
+          impact: "+$3,400/mo",
+          context: "Last increase was March 2024. A 5% lift on core services resets ahead of inflation without disrupting client relationships.",
+        },
+        {
+          title: "Flash promotion on treatments",
+          urgency: "This month",
+          urgencyColor: amber,
+          impact: "+$1,800",
+          context: "Treatments are 72% margin but only 4% of revenue. A targeted promo tied to colour bookings lifts attach rate without discounting.",
+        },
+        {
+          title: "Retail attach rate lift",
+          urgency: "This month",
+          urgencyColor: amber,
+          impact: "+$2,400/mo",
+          context: "Current attach rate is 26%. Lifting to 35% across the team adds an estimated $2,400 per month with zero extra chair time.",
+        },
       ].map(l => (
-        <div key={l.title} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid rgba(34,34,34,0.04)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 10, fontWeight: 400, color: T.colors.textPrimary }}>{l.title}</span>
-            <span style={{ fontSize: 7, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: l.urgencyColor, background: `${l.urgencyColor}15`, padding: "2px 6px", borderRadius: 99 }}>{l.urgency}</span>
+        <div key={l.title} style={{
+          padding: "10px 12px",
+          borderLeft: `3px solid ${l.urgencyColor}`,
+          background: `${l.urgencyColor}08`,
+          borderRadius: 10,
+          marginBottom: 8,
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 10, fontWeight: 500, color: T.colors.textPrimary }}>{l.title}</span>
+              <span style={{ fontSize: 7, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: l.urgencyColor, background: `${l.urgencyColor}15`, padding: "2px 6px", borderRadius: 99 }}>{l.urgency}</span>
+            </div>
+            <span style={{ fontSize: 9, fontWeight: 500, color: sage, flexShrink: 0 }}>{l.impact}</span>
           </div>
-          <span style={{ fontSize: 9, fontWeight: 500, color: sage }}>{l.impact}</span>
+          <div style={{ fontSize: 9, fontWeight: 300, color: T.colors.textSecondary, lineHeight: 1.55 }}>{l.context}</div>
         </div>
       ))}
       <div style={{ marginTop: 16 }}>{footer("The Bottom Line")}</div>
@@ -1937,7 +2059,7 @@ function WaitlistModal({ isOpen, onClose }) {
                 Secure your <span style={{ fontStyle: "italic", fontWeight: 300 }}>early access.</span>
               </h2>
               <p style={{ fontFamily: T.fonts.body, fontWeight: 300, fontSize: 15, lineHeight: 1.75, color: T.colors.textSecondary, marginBottom: 48, maxWidth: 400 }}>
-                sovela is currently in private development. Leave your details below to secure your place in line.
+                Sovela is currently in private development. Leave your details below to secure your place in line.
               </p>
               <WaitlistInput label="First Name" value={firstName} onChange={setFirstName} />
               <WaitlistInput label="Salon Name" value={salonName} onChange={setSalonName} />
@@ -1984,15 +2106,15 @@ function TheStandard() {
   const personas = [
     {
       name: "The Midnight Strategist",
-      body: "For the owner still reconciling tiered commissions on a Sunday night. sovela automates the calculations, so you can close the laptop and take your weekend back.",
+      body: "For the owner still reconciling tiered commissions on a Sunday night. Sovela automates the calculations, so you can close the laptop and take your weekend back.",
     },
     {
       name: "The Visionary",
-      body: "For the leader who watches revenue climb but can't explain why the bank balance tells a different story. sovela maps the full financial picture, from service chair to bottom line.",
+      body: "For the leader who watches revenue climb but can't explain why the bank balance tells a different story. Sovela maps the full financial picture, from service chair to bottom line.",
     },
     {
       name: "The Creative",
-      body: "For the owner who'd rather be shaping their brand than buried in formulas after close. sovela handles the financial detail, so you can step back and lead the business you built.",
+      body: "For the owner who'd rather be shaping their brand than buried in formulas after close. Sovela handles the financial detail, so you can step back and lead the business you built.",
     },
   ];
 
@@ -2145,7 +2267,7 @@ function Footer() {
           </div>
         </div>
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-          <p style={{ fontFamily: T.fonts.body, fontWeight: 300, fontSize: 11, color: "rgba(255,255,255,0.25)", margin: 0 }}>&copy; 2026 sovela. All rights reserved.</p>
+          <p style={{ fontFamily: T.fonts.body, fontWeight: 300, fontSize: 11, color: "rgba(255,255,255,0.25)", margin: 0 }}>&copy; 2026 Sovela. All rights reserved.</p>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <SparkleIcon size={12} color="rgba(191,168,158,0.5)" />
             <span style={{ fontFamily: T.fonts.body, fontWeight: 300, fontSize: 11, color: "rgba(255,255,255,0.25)", letterSpacing: "0.05em" }}>Crafted for luxury salons</span>
