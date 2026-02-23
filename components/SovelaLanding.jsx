@@ -1290,19 +1290,51 @@ function DashboardReveal({ onOpenWaitlist }) {
    ═══════════════════════════════════════════════════════════════ */
 
 function ExecutiveSummary() {
-  const [activeReport, setActiveReport] = useState(null);
-  const [mobileSlide, setMobileSlide] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [displaySlide, setDisplaySlide] = useState(0);
+  const [phase, setPhase] = useState("visible"); // "visible" | "fading-out" | "fading-in"
   const touchStartX = useRef(null);
   const touchStartY = useRef(null);
-  const carouselRef = useRef(null);
 
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 960);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
+  const pillars = [
+    {
+      number: "01",
+      label: "GROWTH RADAR",
+      title: "Growth Radar",
+      hook: "Stop second-guessing your service menu.",
+      body: "See exactly which treatments are pulling ahead and which are quietly slipping. Use these insights to reshape your offering, adjust pricing, and build targeted incentives that steer your team toward the high-margin services that need attention.",
+    },
+    {
+      number: "02",
+      label: "TEAM COACHING",
+      title: "Team Coaching",
+      hook: "Go deeper than total sales.",
+      body: "Discover who's excelling at rebooking, who's bringing in high-value treatments, and where each stylist could use your guidance to hit their next milestone.",
+    },
+    {
+      number: "03",
+      label: "THE BOTTOM LINE",
+      title: "The Bottom Line",
+      hook: "Know where you stand before you open a spreadsheet.",
+      body: "A private, owner-level snapshot of your salon's financial position. Payroll, operating costs, and net take-home laid out clearly every single month.",
+    },
+  ];
+
+  const goTo = (index) => {
+    if (index === activeSlide || phase !== "visible") return;
+    setPhase("fading-out");
+    setTimeout(() => {
+      setActiveSlide(index);
+      setDisplaySlide(index);
+      setPhase("fading-in");
+      setTimeout(() => {
+        setPhase("visible");
+      }, 750);
+    }, 500);
+  };
+
+  const goPrev = () => goTo(activeSlide > 0 ? activeSlide - 1 : pillars.length - 1);
+  const goNext = () => goTo(activeSlide < pillars.length - 1 ? activeSlide + 1 : 0);
 
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
@@ -1313,302 +1345,190 @@ function ExecutiveSummary() {
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     const dy = e.changedTouches[0].clientY - touchStartY.current;
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
-      if (dx < 0 && mobileSlide < 2) setMobileSlide(mobileSlide + 1);
-      if (dx > 0 && mobileSlide > 0) setMobileSlide(mobileSlide - 1);
+      if (dx < 0) goNext();
+      if (dx > 0) goPrev();
     }
     touchStartX.current = null;
     touchStartY.current = null;
   };
 
-  const pillars = [
-    {
-      number: "01",
-      title: "Growth Radar",
-      hook: "Stop second-guessing your service menu.",
-      body: "See exactly which treatments are pulling ahead and which are quietly slipping. Use these insights to reshape your offering, adjust pricing, and build targeted incentives that steer your team toward the high-margin services that need attention.",
-    },
-    {
-      number: "02",
-      title: "Team Coaching",
-      hook: "Go deeper than total sales.",
-      body: "Discover who's excelling at rebooking, who's bringing in high-value treatments, and where each stylist could use your guidance to hit their next milestone.",
-    },
-    {
-      number: "03",
-      title: "The Bottom Line",
-      hook: "Know where you stand before you open a spreadsheet.",
-      body: "A private, owner-level snapshot of your salon's financial position. Payroll, operating costs, and net take-home laid out clearly every single month.",
-    },
-  ];
+  // Animation helpers — staggered delays for cascading feel
+  const textStyle = (staggerDelay = 0) => ({
+    opacity: phase === "fading-out" ? 0 : phase === "fading-in" ? 1 : 1,
+    transform: phase === "fading-out"
+      ? "translateY(12px)"
+      : phase === "fading-in"
+        ? "translateY(0)"
+        : "translateY(0)",
+    transition: phase === "fading-out"
+      ? `opacity 0.5s cubic-bezier(0.4, 0, 0.6, 1) ${staggerDelay * 0.06}s, transform 0.5s cubic-bezier(0.4, 0, 0.6, 1) ${staggerDelay * 0.06}s`
+      : `opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${0.1 + staggerDelay * 0.1}s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${0.1 + staggerDelay * 0.1}s`,
+  });
+
+  const mockupStyle = {
+    opacity: phase === "fading-out" ? 0 : 1,
+    transform: phase === "fading-out"
+      ? "scale(0.97) translateY(8px)"
+      : "scale(1) translateY(0)",
+    transition: phase === "fading-out"
+      ? "opacity 0.5s cubic-bezier(0.4, 0, 0.6, 1), transform 0.5s cubic-bezier(0.4, 0, 0.6, 1)"
+      : "opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, transform 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.15s",
+  };
+
+  const p = pillars[displaySlide];
+
+  const ArrowButton = ({ direction, onClick }) => {
+    const [hov, setHov] = useState(false);
+    return (
+      <button
+        onClick={onClick}
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{
+          width: 48, height: 48,
+          borderRadius: "50%",
+          border: `1px solid ${hov ? T.colors.textPrimary : "rgba(34,34,34,0.15)"}`,
+          background: hov ? "rgba(34,34,34,0.04)" : "transparent",
+          cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          transition: "all 0.3s ease",
+          flexShrink: 0,
+        }}
+        aria-label={direction === "left" ? "Previous" : "Next"}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ transform: direction === "left" ? "rotate(180deg)" : "none" }}>
+          <path d="M6 3L11 8L6 13" stroke={T.colors.textPrimary} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+    );
+  };
 
   return (
     <Section bg="alt" id="executive-summary">
-      {/* Desktop layout — same as before */}
-      <div className="exec-summary-desktop">
-        <div className="exec-summary-layout">
-          <div className="exec-summary-mockup">
-            <FadeInUp delay={0.1}>
-              <ExecutiveReportMockup activeReport={activeReport} />
-            </FadeInUp>
-          </div>
-
-          <div className="exec-summary-content">
-            <FadeInUp>
-              <div style={{
-                fontFamily: T.fonts.body, fontWeight: 500, fontSize: 11,
-                letterSpacing: "0.2em", textTransform: "uppercase",
-                color: T.colors.accent, marginBottom: 20,
-                display: "flex", alignItems: "center", gap: 8,
-              }}>
-                <SparkleIcon size={12} />
-                Monthly Executive Summary
-              </div>
-            </FadeInUp>
-
-            <FadeInUp delay={0.1}>
-              <h2 style={{
-                fontFamily: T.fonts.heading, fontWeight: 200,
-                fontSize: "clamp(28px, 3.5vw, 44px)",
-                lineHeight: 1.2, letterSpacing: "-0.02em",
-                color: T.colors.textPrimary,
-                marginBottom: 20,
-              }}>
-                Data without direction<br />
-                <span style={{ fontStyle: "italic", fontWeight: 300 }}>is just noise.</span>
-              </h2>
-            </FadeInUp>
-
-            <FadeInUp delay={0.2}>
-              <p style={{
-                fontFamily: T.fonts.body, fontWeight: 300,
-                fontSize: "clamp(14px, 1.5vw, 16px)",
-                lineHeight: 1.8, color: T.colors.textSecondary,
-                marginBottom: 40, maxWidth: 480,
-              }}>
-                Your dashboard captures the present. Your executive summary shapes what comes next.
-                Each month, sovela distils thousands of data points into one considered report,
-                built for the owner who leads with intention.
-              </p>
-            </FadeInUp>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-              {pillars.map((p, i) => (
-                <FadeInUp key={p.title} delay={0.25 + i * 0.12}>
-                  <div
-                    onMouseEnter={() => setActiveReport(i)}
-                    onMouseLeave={() => setActiveReport(null)}
-                    onClick={() => setActiveReport(activeReport === i ? null : i)}
-                    style={{
-                      display: "flex", gap: 20,
-                      cursor: "default",
-                      padding: "16px 14px",
-                      marginLeft: -14,
-                      marginRight: -14,
-                      borderRadius: 14,
-                      background: activeReport === i ? "rgba(191,168,158,0.06)" : "transparent",
-                      border: activeReport === i ? "1px solid rgba(191,168,158,0.12)" : "1px solid transparent",
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    <div style={{
-                      fontFamily: T.fonts.body, fontWeight: 300,
-                      fontSize: 11, letterSpacing: "0.1em",
-                      color: activeReport === i ? T.colors.textPrimary : T.colors.accent,
-                      paddingTop: 2, flexShrink: 0,
-                      transition: "color 0.3s ease",
-                    }}>
-                      {p.number}
-                    </div>
-                    <div>
-                      <h4 style={{
-                        fontFamily: T.fonts.heading, fontWeight: 500,
-                        fontSize: 15, letterSpacing: "0",
-                        color: T.colors.textPrimary,
-                        marginBottom: 6,
-                      }}>
-                        {p.title}
-                      </h4>
-                      <p style={{
-                        fontFamily: T.fonts.body, fontWeight: 400,
-                        fontSize: 13.5, lineHeight: 1.6,
-                        color: T.colors.accent, marginBottom: 4,
-                        fontStyle: "italic",
-                      }}>
-                        {p.hook}
-                      </p>
-                      <p style={{
-                        fontFamily: T.fonts.body, fontWeight: 300,
-                        fontSize: 13.5, lineHeight: 1.7,
-                        color: T.colors.textSecondary,
-                        margin: 0,
-                      }}>
-                        {p.body}
-                      </p>
-                    </div>
-                  </div>
-                </FadeInUp>
-              ))}
+      <div
+        className="exec-carousel-wrapper"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* ── Text content (left on desktop, top on mobile) ── */}
+        <div className="exec-carousel-text">
+          <FadeInUp>
+            <div style={{
+              fontFamily: T.fonts.body, fontWeight: 500, fontSize: 11,
+              letterSpacing: "0.2em", textTransform: "uppercase",
+              color: T.colors.accent, marginBottom: 28,
+              display: "flex", alignItems: "center", gap: 8,
+            }}>
+              <SparkleIcon size={12} />
+              Monthly Executive Summary
             </div>
+          </FadeInUp>
 
-            <FadeInUp delay={0.65}>
-              <p style={{
+          {/* Slide counter */}
+          <FadeInUp delay={0.05}>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 12, marginBottom: 28,
+              ...textStyle(0),
+            }}>
+              <div style={{ width: 32, height: 1, background: T.colors.textPrimary }} />
+              <span style={{
                 fontFamily: T.fonts.body, fontWeight: 300,
-                fontSize: 12, fontStyle: "italic",
+                fontSize: 13, letterSpacing: "0.08em",
                 color: T.colors.textTertiary,
-                marginTop: 36,
               }}>
-                Delivered monthly by sovela. Designed by salon owners, for salon owners.
-              </p>
-            </FadeInUp>
-          </div>
+                <span style={{ color: T.colors.textPrimary, fontWeight: 400 }}>{String(displaySlide + 1).padStart(2, "0")}</span>
+                {" / "}
+                {String(pillars.length).padStart(2, "0")}
+              </span>
+            </div>
+          </FadeInUp>
+
+          {/* Title */}
+          <FadeInUp delay={0.1}>
+            <h2 style={{
+              fontFamily: T.fonts.heading, fontWeight: 200,
+              fontSize: "clamp(30px, 4.5vw, 50px)",
+              lineHeight: 1.1, letterSpacing: "-0.025em",
+              color: T.colors.textPrimary, margin: 0,
+              marginBottom: 16,
+              ...textStyle(1),
+            }}>
+              {p.title}
+            </h2>
+          </FadeInUp>
+
+          {/* Hook */}
+          <FadeInUp delay={0.15}>
+            <p style={{
+              fontFamily: T.fonts.body, fontWeight: 400,
+              fontSize: "clamp(13px, 1.4vw, 15px)", lineHeight: 1.6,
+              color: T.colors.accent, fontStyle: "italic", margin: 0,
+              marginBottom: 20,
+              ...textStyle(2),
+            }}>
+              {p.hook}
+            </p>
+          </FadeInUp>
+
+          {/* Body */}
+          <FadeInUp delay={0.2}>
+            <p style={{
+              fontFamily: T.fonts.body, fontWeight: 300,
+              fontSize: "clamp(14px, 1.5vw, 15.5px)",
+              lineHeight: 1.85, color: T.colors.textSecondary, margin: 0,
+              marginBottom: 44, maxWidth: 460,
+              ...textStyle(3),
+            }}>
+              {p.body}
+            </p>
+          </FadeInUp>
+
+          {/* Arrow buttons */}
+          <FadeInUp delay={0.25}>
+            <div style={{ display: "flex", gap: 12 }}>
+              <ArrowButton direction="left" onClick={goPrev} />
+              <ArrowButton direction="right" onClick={goNext} />
+            </div>
+          </FadeInUp>
+        </div>
+
+        {/* ── Report mockup (right on desktop, bottom on mobile) ── */}
+        <div className="exec-carousel-mockup">
+          <FadeInUp delay={0.15}>
+            <div style={mockupStyle}>
+              <ExecutiveReportMockup activeReport={displaySlide} />
+            </div>
+          </FadeInUp>
         </div>
       </div>
 
-      {/* Mobile layout — swipeable carousel */}
-      <div className="exec-summary-mobile">
-        <FadeInUp>
-          <div style={{
-            fontFamily: T.fonts.body, fontWeight: 500, fontSize: 11,
-            letterSpacing: "0.2em", textTransform: "uppercase",
-            color: T.colors.accent, marginBottom: 20,
-            display: "flex", alignItems: "center", gap: 8,
-          }}>
-            <SparkleIcon size={12} />
-            Monthly Executive Summary
-          </div>
-        </FadeInUp>
-
-        <FadeInUp delay={0.1}>
-          <h2 style={{
-            fontFamily: T.fonts.heading, fontWeight: 200,
-            fontSize: "clamp(26px, 7vw, 36px)",
-            lineHeight: 1.2, letterSpacing: "-0.02em",
-            color: T.colors.textPrimary,
-            marginBottom: 16,
-          }}>
-            Data without direction<br />
-            <span style={{ fontStyle: "italic", fontWeight: 300 }}>is just noise.</span>
-          </h2>
-        </FadeInUp>
-
-        <FadeInUp delay={0.2}>
-          <p style={{
-            fontFamily: T.fonts.body, fontWeight: 300,
-            fontSize: 15, lineHeight: 1.75,
-            color: T.colors.textSecondary,
-            marginBottom: 32,
-          }}>
-            Each month, sovela distils thousands of data points into one considered report.
-          </p>
-        </FadeInUp>
-
-        {/* Swipeable carousel */}
-        <FadeInUp delay={0.3}>
-          <div
-            ref={carouselRef}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-            style={{
-              overflow: "hidden",
-              marginLeft: -8,
-              marginRight: -8,
-              borderRadius: 20,
-            }}
-          >
-            <div style={{
-              display: "flex",
-              transition: "transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-              transform: `translateX(-${mobileSlide * 100}%)`,
-            }}>
-              {[0, 1, 2].map((i) => (
-                <div key={i} style={{
-                  minWidth: "100%",
-                  padding: "0 8px",
-                  boxSizing: "border-box",
-                }}>
-                  <ExecutiveReportMockup activeReport={i} isMobileCarousel />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Dot indicators */}
-          <div style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: 8,
-            marginTop: 20,
-            marginBottom: 28,
-          }}>
-            {[0, 1, 2].map((i) => (
-              <button key={i} onClick={() => setMobileSlide(i)} style={{
-                width: mobileSlide === i ? 24 : 8,
-                height: 8,
-                borderRadius: 99,
-                background: mobileSlide === i ? T.colors.accent : "rgba(191,168,158,0.25)",
-                border: "none",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                padding: 0,
-              }} />
-            ))}
-          </div>
-
-          {/* Pillar text for active slide */}
-          <div style={{
-            padding: "20px 0",
-          }}>
-            <div style={{
-              display: "flex", gap: 14, alignItems: "flex-start",
-            }}>
+      {/* ── Bottom tab navigation ── */}
+      <FadeInUp delay={0.3}>
+        <div className="exec-carousel-tabs">
+          {pillars.map((item, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              className="exec-carousel-tab"
+            >
               <div style={{
-                fontFamily: T.fonts.body, fontWeight: 300,
-                fontSize: 11, letterSpacing: "0.1em",
-                color: T.colors.accent,
-                paddingTop: 2, flexShrink: 0,
+                height: 2, borderRadius: 1,
+                background: i === activeSlide ? T.colors.textPrimary : "rgba(34,34,34,0.08)",
+                transition: "background 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+                marginBottom: 16,
+              }} />
+              <span style={{
+                fontFamily: T.fonts.body, fontWeight: i === activeSlide ? 500 : 400,
+                fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase",
+                color: i === activeSlide ? T.colors.textPrimary : T.colors.textTertiary,
+                transition: "all 0.5s ease",
               }}>
-                {pillars[mobileSlide].number}
-              </div>
-              <div>
-                <h4 style={{
-                  fontFamily: T.fonts.heading, fontWeight: 500,
-                  fontSize: 16, color: T.colors.textPrimary,
-                  marginBottom: 6,
-                }}>
-                  {pillars[mobileSlide].title}
-                </h4>
-                <p style={{
-                  fontFamily: T.fonts.body, fontWeight: 400,
-                  fontSize: 14, lineHeight: 1.6,
-                  color: T.colors.accent, marginBottom: 6,
-                  fontStyle: "italic",
-                }}>
-                  {pillars[mobileSlide].hook}
-                </p>
-                <p style={{
-                  fontFamily: T.fonts.body, fontWeight: 300,
-                  fontSize: 14, lineHeight: 1.7,
-                  color: T.colors.textSecondary,
-                  margin: 0,
-                }}>
-                  {pillars[mobileSlide].body}
-                </p>
-              </div>
-            </div>
-          </div>
-        </FadeInUp>
-
-        <FadeInUp delay={0.5}>
-          <p style={{
-            fontFamily: T.fonts.body, fontWeight: 300,
-            fontSize: 12, fontStyle: "italic",
-            color: T.colors.textTertiary,
-            marginTop: 20,
-          }}>
-            Delivered monthly by sovela. Designed by salon owners, for salon owners.
-          </p>
-        </FadeInUp>
-      </div>
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </FadeInUp>
     </Section>
   );
 }
@@ -2338,37 +2258,51 @@ export default function SovelaApp() {
           .dashboard-image-wrap { order: 1; }
         }
 
-        .exec-summary-layout {
+        /* Executive Summary — Elegant Carousel */
+        .exec-carousel-wrapper {
           display: grid;
           grid-template-columns: 1fr;
           gap: 48px;
           align-items: start;
         }
-        .exec-summary-mockup {
+        .exec-carousel-text { order: 1; }
+        .exec-carousel-mockup {
+          order: 2;
           display: flex;
           justify-content: center;
         }
-        .exec-summary-content { order: 1; }
         @media (min-width: 960px) {
-          .exec-summary-layout {
+          .exec-carousel-wrapper {
             grid-template-columns: 1fr auto;
-            gap: 64px;
+            gap: 72px;
             align-items: start;
           }
-          .exec-summary-mockup { order: 2; position: sticky; top: 120px; animation: softFloat 6s ease-in-out infinite; }
-          .exec-summary-content { order: 1; }
-        }
-        @media (max-width: 959px) {
-          .exec-summary-mockup { order: 2; }
-          .exec-summary-content { order: 1; }
+          .exec-carousel-text { order: 1; }
+          .exec-carousel-mockup { order: 2; position: sticky; top: 120px; animation: softFloat 6s ease-in-out infinite; }
         }
 
-        /* Executive Summary: desktop vs mobile layout toggle */
-        .exec-summary-desktop { display: block; }
-        .exec-summary-mobile { display: none; }
+        .exec-carousel-tabs {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0;
+          margin-top: 56px;
+          border-top: 1px solid rgba(34,34,34,0.06);
+          padding-top: 0;
+        }
+        .exec-carousel-tab {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          text-align: left;
+          padding-top: 0;
+        }
+        .exec-carousel-tab:hover span {
+          color: ${T.colors.textPrimary} !important;
+        }
         @media (max-width: 959px) {
-          .exec-summary-desktop { display: none; }
-          .exec-summary-mobile { display: block; }
+          .exec-carousel-tabs { margin-top: 40px; }
+          .exec-carousel-tab span { font-size: 9px !important; letter-spacing: 0.1em !important; }
         }
 
         .hero-video-frame { max-width: 920px; margin: 0 auto; }
