@@ -1944,7 +1944,7 @@ function StickyCTA({ onClick }) {
    WAITLIST SLIDE-OVER MODAL
    ═══════════════════════════════════════════════════════════════ */
 
-function WaitlistInput({ label, type = "text", value, onChange }) {
+function WaitlistInput({ label, type = "text", value, onChange, placeholder = "" }) {
   const [focused, setFocused] = useState(false);
   const hasValue = value && value.length > 0;
   return (
@@ -1962,6 +1962,7 @@ function WaitlistInput({ label, type = "text", value, onChange }) {
         pointerEvents: "none",
       }}>{label}</label>
       <input type={type} value={value}
+        placeholder={focused ? placeholder : ""}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
@@ -1976,11 +1977,54 @@ function WaitlistInput({ label, type = "text", value, onChange }) {
   );
 }
 
+function WaitlistSelect({ label, value, onChange, options }) {
+  const [focused, setFocused] = useState(false);
+  const hasValue = value && value.length > 0;
+  return (
+    <div style={{ position: "relative", marginBottom: 36 }}>
+      <label style={{
+        position: "absolute", left: 0,
+        top: (focused || hasValue) ? -8 : 14,
+        fontSize: (focused || hasValue) ? 10 : 14,
+        fontFamily: T.fonts.body,
+        fontWeight: (focused || hasValue) ? 500 : 300,
+        letterSpacing: (focused || hasValue) ? "0.1em" : "0.02em",
+        textTransform: (focused || hasValue) ? "uppercase" : "none",
+        color: focused ? T.colors.accent : T.colors.textTertiary,
+        transition: "all 0.3s cubic-bezier(0.25,0.46,0.45,0.94)",
+        pointerEvents: "none",
+      }}>{label}</label>
+      <select value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{
+          width: "100%", padding: "14px 0",
+          fontFamily: T.fonts.body, fontWeight: 300, fontSize: 15,
+          color: hasValue ? T.colors.textPrimary : "transparent",
+          background: "transparent", border: "none",
+          borderBottom: `1.5px solid ${focused ? T.colors.accent : "rgba(34,34,34,0.12)"}`,
+          outline: "none", transition: "border-color 0.4s ease", letterSpacing: "0.01em",
+          appearance: "none", WebkitAppearance: "none", cursor: "pointer",
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23999' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 4px center",
+        }}>
+        <option value="" disabled></option>
+        {options.map(o => <option key={o} value={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+}
+
 function WaitlistModal({ isOpen, onClose }) {
   const [formState, setFormState] = useState("form");
   const [firstName, setFirstName] = useState("");
   const [salonName, setSalonName] = useState("");
   const [email, setEmail] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [bookingSoftware, setBookingSoftware] = useState("");
+  const [city, setCity] = useState("");
   const [animateIn, setAnimateIn] = useState(false);
 
   useEffect(() => {
@@ -1996,16 +2040,48 @@ function WaitlistModal({ isOpen, onClose }) {
 
   const handleClose = () => {
     setAnimateIn(false);
-    setTimeout(() => { onClose(); setTimeout(() => { setFormState("form"); setFirstName(""); setSalonName(""); setEmail(""); }, 200); }, 400);
+    setTimeout(() => { onClose(); setTimeout(() => { setFormState("form"); setFirstName(""); setSalonName(""); setEmail(""); setInstagram(""); setBookingSoftware(""); setCity(""); }, 200); }, 400);
   };
 
-  const handleSubmit = () => {
-    if (!firstName || !email) return;
+  const SUPABASE_URL = "https://gopvykkajhvbgvvehsqn.supabase.co";
+  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvcHZ5a2thamh2Ymd2dmVoc3FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4MzgwNzUsImV4cCI6MjA4NzQxNDA3NX0.pcsVpg3sFmDdjikNcQMwI2GWHtNCObJXgf6Vr5jAdws";
+
+  const handleSubmit = async () => {
+    if (!firstName || !salonName || !email) return;
     setFormState("submitting");
-    setTimeout(() => setFormState("success"), 1200);
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON,
+          "Authorization": `Bearer ${SUPABASE_ANON}`,
+          "Prefer": "return=minimal",
+        },
+        body: JSON.stringify({
+          name: firstName,
+          salon_name: salonName,
+          email: email,
+          instagram_handle: instagram || null,
+          booking_system: bookingSoftware || null,
+          city: city || null,
+        }),
+      });
+      if (res.ok) {
+        setFormState("success");
+      } else {
+        setFormState("form");
+        alert("Something went wrong — please try again.");
+      }
+    } catch (err) {
+      setFormState("form");
+      alert("Connection error — please try again.");
+    }
   };
 
   if (!isOpen) return null;
+
+  const bookingOptions = ["Timely", "Square", "Fresha", "Vagaro", "Mangomint", "Other"];
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 200 }}>
@@ -2037,10 +2113,10 @@ function WaitlistModal({ isOpen, onClose }) {
               <div style={{ width: 56, height: 56, borderRadius: "50%", background: T.colors.accentLight, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 28 }}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={T.colors.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
               </div>
-              <h2 style={{ fontFamily: T.fonts.heading, fontWeight: 200, fontSize: "clamp(28px, 4vw, 38px)", lineHeight: 1.15, letterSpacing: "-0.02em", color: T.colors.textPrimary, marginBottom: 20 }}>You're on the list.</h2>
+              <h2 style={{ fontFamily: T.fonts.heading, fontWeight: 200, fontSize: "clamp(28px, 4vw, 38px)", lineHeight: 1.15, letterSpacing: "-0.02em", color: T.colors.textPrimary, marginBottom: 20 }}>You're in.</h2>
               <DiamondDivider />
               <p style={{ fontFamily: T.fonts.body, fontWeight: 300, fontSize: 15, lineHeight: 1.8, color: T.colors.textSecondary, marginTop: 20, maxWidth: 380 }}>
-                Thank you for requesting access. We are meticulously building the final product and will be in touch with your exclusive invitation.
+                Check your inbox for your Sovela pricing guide. Founding salons lock in their rate permanently.
               </p>
               <div style={{ marginTop: 32, padding: "20px 24px", borderRadius: T.radius.card, background: "rgba(191,168,158,0.06)", border: "1px solid rgba(191,168,158,0.1)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
@@ -2048,7 +2124,7 @@ function WaitlistModal({ isOpen, onClose }) {
                   <span style={{ fontFamily: T.fonts.body, fontWeight: 500, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: T.colors.accent }}>What happens next</span>
                 </div>
                 <p style={{ fontFamily: T.fonts.body, fontWeight: 300, fontSize: 13, lineHeight: 1.7, color: T.colors.textTertiary, margin: 0 }}>
-                  We'll review your request and send a personalised onboarding invitation when your place is ready.
+                  You'll receive your pricing guide within minutes. I'll follow up personally within 24 hours to walk you through how Sovela works for your salon.
                 </p>
               </div>
             </div>
@@ -2056,14 +2132,17 @@ function WaitlistModal({ isOpen, onClose }) {
             <div>
               <div style={{ fontFamily: T.fonts.heading, fontWeight: 300, fontSize: "0.85rem", letterSpacing: "0.25em", color: T.colors.textTertiary, marginBottom: 48 }}>sovela</div>
               <h2 style={{ fontFamily: T.fonts.heading, fontWeight: 200, fontSize: "clamp(28px, 4vw, 38px)", lineHeight: 1.15, letterSpacing: "-0.02em", color: T.colors.textPrimary, marginBottom: 16 }}>
-                Secure your <span style={{ fontStyle: "italic", fontWeight: 300 }}>early access.</span>
+                Request <span style={{ fontStyle: "italic", fontWeight: 300 }}>early access.</span>
               </h2>
               <p style={{ fontFamily: T.fonts.body, fontWeight: 300, fontSize: 15, lineHeight: 1.75, color: T.colors.textSecondary, marginBottom: 48, maxWidth: 400 }}>
-                Sovela is currently in private development. Leave your details below to secure your place in line.
+                We're onboarding a limited number of founding salons. Leave your details and we'll send your pricing guide immediately.
               </p>
-              <WaitlistInput label="First Name" value={firstName} onChange={setFirstName} />
+              <WaitlistInput label="Full Name" value={firstName} onChange={setFirstName} />
               <WaitlistInput label="Salon Name" value={salonName} onChange={setSalonName} />
               <WaitlistInput label="Email Address" type="email" value={email} onChange={setEmail} />
+              <WaitlistInput label="Salon Instagram" value={instagram} onChange={setInstagram} placeholder="@yoursalon" />
+              <WaitlistSelect label="Booking Software" value={bookingSoftware} onChange={setBookingSoftware} options={bookingOptions} />
+              <WaitlistInput label="City / State" value={city} onChange={setCity} />
               <button onClick={handleSubmit} disabled={formState === "submitting"}
                 style={{
                   width: "100%", padding: "18px 36px", borderRadius: T.radius.pill,
@@ -2079,7 +2158,7 @@ function WaitlistModal({ isOpen, onClose }) {
                     <span style={{ width: 14, height: 14, border: `2px solid ${T.colors.accent}`, borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.8s linear infinite", display: "inline-block" }} />
                     Securing your place...
                   </span>
-                ) : "Join the Waitlist"}
+                ) : "Request Early Access"}
               </button>
               <p style={{ fontFamily: T.fonts.body, fontWeight: 300, fontSize: 11, color: T.colors.textTertiary, textAlign: "center", marginTop: 20, letterSpacing: "0.02em" }}>
                 We respect your privacy. No spam, ever.
